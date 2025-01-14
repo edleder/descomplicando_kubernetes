@@ -1,16 +1,64 @@
 Descomplicando o Kubernetes - Expert Mode
+
  
 
 DAY-1
+
  
 
+Indice
+
 O quê preciso saber antes de começar?
+Inicio da aula do Day-1
+Qual a distro GNU/Linux que devo usar?
+Alguns sites que devemos visitar
+O Container Engine
+OCI - Open Container Initiative
+O Container Runtime
+O que é o Kubernetes?
+Arquitetura do k8s
+Instalando e customizando o Kubectl
+Instalação do Kubectl no GNU/Linux
+Instalação do Kubectl no MacOS
+Instalação do Kubectl no Windows
+Customizando o kubectl
+Auto-complete do kubectl
+Criando um alias para o kubectl
+Criando um cluster Kubernetes
+Criando o cluster em sua máquina local
+Minikube
+Requisitos básicos para o Minikube
+Instalação do Minikube no GNU/Linux
+Instalação do Minikube no MacOS
+Instalação do Minikube no Microsoft Windows
+Iniciando, parando e excluindo o Minikube
+Ver detalhes sobre o cluster
+Descobrindo o endereço do Minikube
+Acessando a máquina do Minikube via SSH
+Dashboard do Minikube
+Logs do Minikube
+Remover o cluster
+Kind
+Instalação no GNU/Linux
+Instalação no MacOS
+Instalação no Windows
+Instalação no Windows via Chocolatey
+Criando um cluster com o Kind
+Criando um cluster com múltiplos nós locais com o Kind
+Primeiros passos no k8s
+Verificando os namespaces e pods
+Executando nosso primeiro pod no k8s
+Expondo o pod e criando um Service
+Limpando tudo e indo para casa
+ 
+
+O que iremos ver hoje?
 
 Durante o Day-1 nós vamos entender o que é um container, vamos falar sobre a importância do container runtime e do container engine. Durante o Day-1 vamos entender o que é o Kubernetes e sua arquitetura, vamos falar sobre o control plane, workers, apiserver, scheduler, controller e muito mais! Será aqui que iremos criar o nosso primeiro cluster Kubernetes e realizar o deploy de um pod do Nginx. O Day-1 é para que eu possa me sentir mais confortável com o Kubernetes e seus conceitos iniciais.  
 
-
-
 Inicio da aula do Day-1
+
+ 
 
 Qual distro GNU/Linux devo usar?
 
@@ -120,9 +168,9 @@ Minikube: ferramenta para implementar um cluster Kubernetes localmente com apena
 
 MicroK8S: Desenvolvido pela Canonical, mesma empresa que desenvolve o Ubuntu. Pode ser utilizado em diversas distribuições e pode ser utilizado em ambientes de produção, em especial para Edge Computing e IoT (Internet of things);
 
-k3s: Desenvolvido pela Rancher Labs, é um concorrente direto do MicroK8s, podendo ser executado inclusive em Raspberry Pi.
+k3s: Desenvolvido pela Rancher Labs, é um concorrente direto do MicroK8s, podendo ser executado inclusive em Raspberry Pi;
 
-k0s: Desenvolvido pela Mirantis, mesma empresa que adquiriu a parte enterprise do Docker. É uma distribuição do Kubernetes com todos os recursos necessários para funcionar em um único binário, que proporciona uma simplicidade na instalação e manutenção do cluster. A pronúncia é correta é kay-zero-ess e tem por objetivo reduzir o esforço técnico e desgaste na instalação de um cluster Kubernetes, por isso o seu nome faz alusão a Zero Friction. O k0s pode ser utilizado em ambientes de produção/
+k0s: Desenvolvido pela Mirantis, mesma empresa que adquiriu a parte enterprise do Docker. É uma distribuição do Kubernetes com todos os recursos necessários para funcionar em um único binário, que proporciona uma simplicidade na instalação e manutenção do cluster. A pronúncia é correta é kay-zero-ess e tem por objetivo reduzir o esforço técnico e desgaste na instalação de um cluster Kubernetes, por isso o seu nome faz alusão a Zero Friction. O k0s pode ser utilizado em ambientes de produção;
 
 API Server: É um dos principais componentes do k8s. Este componente fornece uma API que utiliza JSON sobre HTTP para comunicação, onde para isto é utilizado principalmente o utilitário kubectl, por parte dos administradores, para a comunicação com os demais nós, como mostrado no gráfico. Estas comunicações entre componentes são estabelecidas através de requisições REST;
 
@@ -132,9 +180,11 @@ Scheduler: O scheduler é responsável por selecionar o nó que irá hospedar um
 
 Controller Manager: É o controller manager quem garante que o cluster esteja no último estado definido no etcd. Por exemplo: se no etcd um deploy está configurado para possuir dez réplicas de um pod, é o controller manager quem irá verificar se o estado atual do cluster corresponde a este estado e, em caso negativo, procurará conciliar ambos;
 
-Kubelet: O kubelet pode ser visto como o agente do k8s que é executado nos nós workers. Em cada nó worker deverá existir um agente Kubelet em execução. O Kubelet é responsável por de fato gerenciar os pods, que foram direcionados pelo controller do cluster, dentro dos nós, de forma que para isto o Kubelet pode iniciar, parar e manter os contêineres e os pods em funcionamento de acordo com o instruído pelo controlador do cluster;
+Kubelet: O kubelet pode ser visto como o alente do k8s que é executado nos nós workers. Em cada nó worker deverá existir um agente Kubelet em execução. O Kubelet é responsável por de fato gerenciar os pods que foram direcionados pelo controller do cluster, dentro dos nós, de forma que para isto o Kubelet pode iniciar, parar e manter os contêineres e os pods em funcionamento de acordo com o instruído pelo controlador do cluster;
 
-Kube-proxy: Age como um proxy e um load balancer. Este componente é responsável por efetuar roteamento de requisições para os pods corretos, como também por cuidar da parte de rede do nó;  
+Kube-proxy: Age como um proxy e um load balancer. Este componente é responsável por efetuar roteamento de requisições para os pods corretos, como também por cuidar da parte de rede do nó;
+
+ 
 
 Portas que devemos nos preocupar
 
@@ -146,7 +196,9 @@ TCP	Inbound	2379-2380	etcd server client API	kube-apiserver, etcd
 TCP	Inbound	10250	Kubelet API	Self, Control plane
 TCP	Inbound	10251	kube-scheduler	Self
 TCP	Inbound	10252	kube-controller-manager	Self
-Toda porta marcada por * é customizável, você precisa se certificar que a porta alterada também esteja aberta.   WORKERS
+Toda porta marcada por * é customizável, você precisa se certificar que a porta alterada também esteja aberta.
+  WORKERS
+
 Protocol	Direction	Port Range	Purpose	Used By
 TCP	Inbound	10250	Kubelet API	Self, Control plane
 TCP	Inbound	30000-32767	NodePort	Services All
@@ -343,7 +395,8 @@ Você pode então listar os nós que fazem parte do seu cluster k8s com o seguin
 kubectl get nodes
   A saída será similar ao conteúdo a seguir:
 
-kubectl get nodes
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   20s   v1.25.3
   Para criar um cluster com mais de um nó, você pode utilizar o comando abaixo, apenas modificando os valores para o desejado:
 
 minikube start --nodes 2 -p multinode-cluster
@@ -380,7 +433,7 @@ minikube start --nodes 2 -p multinode-cluster
   Para visualizar os nós do seu novo cluster Kubernetes, digite:
 
 kubectl get nodes
-  Inicialmente, a intenção do Minikube é executar o k8s em apenas um nó, porém a partir da versão 1.10.1 e possível usar a função de multi-node.
+  Inicialmente, a intenção do Minikube é executar o k8s em apenas um nó, porém a partir da versão 1.10.1 é possível usar a função de multi-node.
 
 Caso os comandos anteriores tenham sido executados sem erro, a instalação do Minikube terá sido realizada com sucesso.
 
@@ -630,7 +683,7 @@ O erro ocorre devido ao fato do k8s não saber qual é a porta de destino do con
 kubectl delete -f pod-template.yaml
 Agora vamos executar novamente o comando para a criação do pod utilizando o parametro 'dry-run', porém agora vamos adicionar o parametro '--port' para dizer qual a porta que o container está escutando, lembrando que estamos utilizando o nginx nesse exemplo, um webserver que escuta por padrão na porta 80.
 
-kubectl run meu-nginx --image nginx --dry-run=client -o yaml > pod-template.yaml
+kubectl run meu-nginx --image nginx --port 80 --dry-run=client -o yaml > pod-template.yaml
 kubectl create -f pod-template.yaml
 Liste os pods.
 
